@@ -38,7 +38,7 @@ void dbscan(const double *x, int *res, const int n, const int m, const int min_p
 	dist_matr(x, dist, n, m);
 	int count = 0;
 	for (int i = 0; i < n; i++) {
-		if ((res[i] == -1) && (n_nums(x, dist, n , i, eps) > min_pts)) {
+		if ((res[i] == -1) && (n_nums(x, dist, n , i, eps) >= min_pts)) {
 			res[i] = count;
 			marker(dist, res, n, i, count, eps);
 			count++;

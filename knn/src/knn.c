@@ -16,11 +16,11 @@ void sigma(const double *x,const int n,const int m,const int l, double *sig, dou
 void z_normalization(double *x, const int n, const int m) {
 	double *av =(double*)malloc(m * sizeof(double));
 	double *sigm = (double*)malloc(m *sizeof(double));
-	for (int i = 0; i < m; i++)
-		sigma(x, n, m, i, &sigm[i], &av[i]);
 	for (int i = 0; i < n; i++)
-		for (int j = 0; j < m; j++)
+		for (int j = 0; j < m; j++) {
+			if (i == 0)	sigma(x, n, m, j, &sigm[j], &av[j]);
 			x[i * m + j] = (x[i * m + j] - av[j])/sigm[j];
+		}
 	free(av);
 	free(sigm);
 }

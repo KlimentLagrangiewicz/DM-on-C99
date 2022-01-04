@@ -37,7 +37,7 @@ int main(void) {
 	scanf_test(test, x_test, N2, M);
 	btree *tree = (btree*)malloc(sizeof(btree));
 	int noc = get_num_of_cl(y, N);
-	int *start_num = (int*)malloc(N2 * sizeof(int));
+	int *start_num = (int*)malloc(N * sizeof(int));
 	for (int i = 0; i < N; i++)
 		start_num[i] = i;
     create_tree(tree, x_train, y, M, start_num, N, noc);

@@ -36,13 +36,7 @@ int main(void) {
 	scanf_train(train, x_train, y, N, M);
 	scanf_test(test, x_test, N2, M);
 	btree *tree = (btree*)malloc(sizeof(btree));
-	int noc;
-	printf("Укажите число классов=?\n");
-	scanf("%d", &noc);
-	if (noc < 2) {
-		printf("Некорректное число классов!\n");
-		exit(1);
-	}
+	int noc = get_num_of_cl(y, N);
 	int *start_num = (int*)malloc(N2 * sizeof(int));
 	for (int i = 0; i < N; i++)
 		start_num[i] = i;

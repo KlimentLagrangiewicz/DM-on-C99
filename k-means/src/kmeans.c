@@ -25,26 +25,20 @@ void get_clasters(const double *x, const double *core, int *y, const int n, cons
 		y[i] = get_claster(x, core, m, k, i);
 }
 
-void calc_centrum_l(const double *x, double* core, const int *y,const int n, const int m, const int l) {
-	double *buff = (double*)malloc(m*sizeof(double));
-	memcpy(buff, &core[l * m], m * sizeof(double));
-	memset(&core[l * m], 0.0, m * sizeof(double));
-	for (int i = 0; i < m; i++) {
-		int nums = 0;
-		for (int j = 0; j < n; j++) {
-			if (y[j] == l) {
-				nums++;
-				core[l * m + i] += x[j * m + i];
-			}
+void calc_centrums(const double *x, const int *y, double *cores, const int n, const int m, const int k) {
+	memset(cores, 0,  m * k * sizeof(double));
+	int *nums = (int*)malloc(k * sizeof(int));
+	memset(nums, 0, k * sizeof(int));
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			cores[y[i] * m + j] += x[i * m + j];
 		}
-		core[l * m + i] = (nums == 0)?buff[i]:(core[l * m + i]/(double)nums);
+		nums[y[i]]++;
 	}
-	free(buff);
-}
-
-void calc_centrums(const double *x, double *core, const int *y, const int k, const int m) {
 	for (int i = 0; i < k; i++)
-		calc_centrum_l(x, core, y, k, m, i);
+		for (int j = 0; j < m; j++)
+			cores[i * m + j] /= nums[i];
+	free(nums);
 }
 
 void start_corenums(int *y, const int k, const int n) {
@@ -67,7 +61,7 @@ void centrum_mass(const double *x, int k, int m, double *val) {
 		double sum = 0.0;
 		for (int j = 0; j < k; j++)
 			sum += x[j * m + i];
-		val[i] = sum/k;
+		val[i] = sum / k;
 	}
 }
 
@@ -122,13 +116,13 @@ void kmeans(const double *x, int *res, const int n, const int m, const int k) {
 	printf("Ядра:\n");
 	for (int i = 0; i < k; i++){
 		for (int j = 0; j < m; j++)
-			printf(" %.2lf ", core[i * m +j]);
+			printf(" %.2lf ", core[i * m + j]);
 		printf("\n");
 	}
 	int *new_res = (int*)malloc(n * sizeof(int));
 	get_clasters(x, core, res, n, m, k);
 	do {
-		calc_centrums(x, core, res, k, m);
+		calc_centrums(x, res, core, n, m, k);
 		get_clasters(x, core, new_res, n, m, k);
 		flag = memcmp(res, new_res, n * sizeof(int));
 	    memcpy(res, new_res, n * sizeof(int));

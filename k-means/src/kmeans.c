@@ -7,22 +7,22 @@ double dist_Ev(const double *x, const double *core, const int m, const int l, co
 	return dist;
 }
 
-int get_claster(const double *x, const double *core, const int m, const int k, const int l) {
-	int kmin = 0;
-	double min_dist = dist_Ev(x, core, m, l, 0);
+void get_clasters(const double *x, const double *core, int *y, const int n, const int m, const int k) {
+	double *min_dist = (double*)malloc(n * sizeof(double));
+	for (int i = 0; i < n; i++) {
+		min_dist[i] = DBL_MAX;
+	}
+	memset(y, 0, n * sizeof(int));
 	for (int i = 0; i < k; i++) {
-		double cur_dist = dist_Ev(x, core, m, l, i);
-		if (cur_dist < min_dist) {
-			min_dist = cur_dist;
-			kmin = i;
+		for (int j = 0; j < n; j++) {
+			register double cur_dist = dist_Ev(x, core, m, j, i);
+			if (cur_dist < min_dist[j]) {
+				min_dist[j] = cur_dist;
+				y[j] = i;
+			}
 		}
 	}
-	return kmin;
-}
-
-void get_clasters(const double *x, const double *core, int *y, const int n, const int m, const int k) {
-	for (int i = 0; i < n; i++)
-		y[i] = get_claster(x, core, m, k, i);
+	free(min_dist);
 }
 
 void calc_centrums(const double *x, const int *y, double *cores, const int n, const int m, const int k) {
@@ -56,7 +56,7 @@ void start_corenums(int *y, const int k, const int n) {
 }
 
 void centrum_mass(const double *x, int k, int m, double *val) {
-	memset(val, 0.0, m * sizeof(double));
+	memset(val, 0, m * sizeof(double));
 	for (int i = 0; i < m; i++) {
 		double sum = 0.0;
 		for (int j = 0; j < k; j++)

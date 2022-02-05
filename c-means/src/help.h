@@ -8,4 +8,4 @@
 void fscanf_data(double *x, const int m, char fn[70]);
 void fprintf_data(const double *r, const int n, const int k, char fn[70]);
 
-#endif /* HELP_H_ */
+#endif

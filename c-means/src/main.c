@@ -4,7 +4,7 @@
 #include <locale.h>
 
 #include "help.h"
-
+#include "cmeans.h"
 
 int main(void) {
 	setlocale(LC_ALL, "RUS");

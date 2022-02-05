@@ -1,5 +1,9 @@
 #include "cmeans.h"
 
+double gauss(double x, double mx, double sigm) {
+	return pow(M_E, -pow((x - mx) / sigm, 2) / 2);
+}
+
 double dist_Ev(const double *x, const double *c, const int m, const int l, const int k) {
 	volatile double sum = 0;
 	for (int i = 0; i < m; i++)

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void fscanf_data(double *x, const int n, const char filename[70]);
-void fprintf_res(const int *y, const int n, const char filename[70]);
+void fscanf_data(double *x, const int n, const char fn[]);
+void fprintf_res(const int *y, const int n, const char fn[]);
 
 #endif

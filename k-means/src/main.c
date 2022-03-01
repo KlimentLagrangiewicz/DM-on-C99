@@ -6,34 +6,22 @@
 #include "help.h"
 #include "kmeans.h"
 
-int main(void) {
+int main(int argc, char* argv[]) {
 	setlocale(LC_ALL, "RUS");
-	int n, m, k;
-	printf("Укажите число объектов для кластеризации=?\n");
-	if (scanf("%d", &n) == 0) {}
-	if (n < 1) {
-		printf("Вы указали некорректное значение!\n");
+	if (argc < 6) {
+		printf("Недостаточное число параметров!\n");
 		exit(1);
 	}
-	printf("Число их атрибутов=?\n");
-	if (scanf("%d", &m) == 0) {}
-	if (m < 1) {
-		printf("Вы указали некорректное значение!\n");
-		exit(1);
-	}
-	printf("Число кластеров=?\n");
-	if (scanf("%d", &k) == 0) {}
-	if (k > n) {
-		printf("Вы указали некорректное значение для числа кластеров\n");
+	int n = atoi(argv[1]), m = atoi(argv[2]), k = atoi(argv[3]);
+	if ((n < 1) || (m < 1) || (k > n)) {
+		printf("Некорректные значения параметров M, N или K!\n");
 		exit(1);
 	}
 	double *x = (double*)malloc(n * m * sizeof(double));
-	char data[70] = "//home//user//Рабочий стол//data//iris//test";
-	char results[70] = "//home//user//Рабочий стол//data//iris//result";
-	fscanf_data(x, n * m, data);
+	fscanf_data(x, n * m, argv[4]);
 	int *res = (int*)malloc(n * sizeof(int));
 	kmeans(x, res, n, m, k);
-	fprintf_res(res, n, results);
+	fprintf_res(res, n, argv[5]);
 	printf("Работа программы завершена!\n");
 	free(x);
 	free(res);

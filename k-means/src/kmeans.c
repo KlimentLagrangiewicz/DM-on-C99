@@ -4,7 +4,7 @@ double dist_Ev(const double *x, const double *core, const int m, const int l, co
 	double dist = 0;
 	for (int i = 0; i < m; i++)
 		dist += pow(x[l * m + i] - core[k * m + i], 2.0);
-	return dist;
+	return sqrt(dist);
 }
 
 void get_clasters(const double *x, const double *core, int *y, const int n, const int m, const int k) {
@@ -56,17 +56,26 @@ static short constr(int *y, int val, int s) {
 
 void start_corenums(int *y, const int k, const int n) {
 	int i;
-    for (i = 0; i < k; i++) {
-    	int val;
-    	do {
-    		val = rand() % n;
-    	} while (constr(y, val, i) == 0);
-    	y[i] = val;
-    }
+	for (i = 0; i < k; i++) {
+		int val;
+		do {
+			val = rand() % n;
+		} while (constr(y, val, i) == 0);
+		y[i] = val;
+	}
+}
+
+static short equal(const int *a, const int *b, const int n) {
+	short int result = 0;
+	int i;
+	for (i = 0; i < n && (result == 0); i++) {
+		if (a[i] != b[i]) result = 1;
+	}
+	return result;
 }
 
 void kmeans(const double *x, int *res, const int n, const int m, const int k) {
-	bool flag = false;
+	short flag = 0;
 	double *core = (double*)malloc(k * m * sizeof(double));
 	int *start_num = (int*)malloc(k * sizeof(int));
 	start_corenums(start_num, k, n);
@@ -78,9 +87,9 @@ void kmeans(const double *x, int *res, const int n, const int m, const int k) {
 	do {
 		calc_centrums(x, res, core, n, m, k);
 		get_clasters(x, core, new_res, n, m, k);
-		flag = memcmp(res, new_res, n * sizeof(int));
+		flag = equal(new_res, res, n);
 	    memcpy(res, new_res, n * sizeof(int));
-	} while (flag);
+	} while (flag == 1);
 	free(core);
 	free(new_res);
 }

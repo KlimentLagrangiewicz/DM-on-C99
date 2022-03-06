@@ -2,27 +2,28 @@
 
 double dist_Ev(const double *x, const double *core, const int m, const int l, const int k) {
 	double dist = 0;
-	for (int i = 0; i < m; i++)
+	int i;
+	for (i = 0; i < m; i++)
 		dist += pow(x[l * m + i] - core[k * m + i], 2.0);
 	return sqrt(dist);
 }
 
-void get_clasters(const double *x, const double *core, int *y, const int n, const int m, const int k) {
-	double *min_dist = (double*)malloc(n * sizeof(double));
-	for (int i = 0; i < n; i++) {
-		min_dist[i] = DBL_MAX;
-	}
-	memset(y, 0, n * sizeof(int));
-	for (int i = 0; i < k; i++) {
-		for (int j = 0; j < n; j++) {
-			double cur_dist = dist_Ev(x, core, m, j, i);
-			if (cur_dist < min_dist[j]) {
-				min_dist[j] = cur_dist;
-				y[j] = i;
+short get_clasters(const double *x, const double *core, int *y, const int n, const int m, const int k) {
+	int i, j, f = 0;
+	for (i = 0; i < n; i++) {
+		int claster = 0;
+		double dist = DBL_MAX;
+		for (j = 0; j < k; j++) {
+			double cur_dist = dist_Ev(x, core, m, i, j);
+			if (cur_dist < dist) {
+				dist = cur_dist;
+				claster = j;
 			}
 		}
+		if (y[i] == claster) f++;
+		y[i] = claster;
 	}
-	free(min_dist);
+	return (f == n) ? 0 : 1;
 }
 
 void calc_centrums(const double *x, const int *y, double *cores, const int n, const int m, const int k) {
@@ -46,9 +47,9 @@ void calc_centrums(const double *x, const int *y, double *cores, const int n, co
 }
 
 static short constr(int *y, int val, int s) {
-	short flag = -1;
+	short flag = 1;
 	int i;
-	for (i = 0; i < s && (flag == -1); i++) {
+	for (i = 0; i < s && (flag == 1); i++) {
 		if (y[i] == val) flag = 0;
 	}
 	return flag;
@@ -65,31 +66,20 @@ void start_corenums(int *y, const int k, const int n) {
 	}
 }
 
-static short equal(const int *a, const int *b, const int n) {
-	short int result = 0;
-	int i;
-	for (i = 0; i < n && (result == 0); i++) {
-		if (a[i] != b[i]) result = 1;
-	}
-	return result;
-}
 
 void kmeans(const double *x, int *res, const int n, const int m, const int k) {
-	short flag = 0;
+	short flag = 1;
 	double *core = (double*)malloc(k * m * sizeof(double));
 	int *start_num = (int*)malloc(k * sizeof(int));
 	start_corenums(start_num, k, n);
-	for (int i = 0; i < k; i++)
+	int i;
+	for (i = 0; i < k; i++)
 		memcpy(&core[i * m], &x[start_num[i] * m], m * sizeof(double));
 	free(start_num);
-	int *new_res = (int*)malloc(n * sizeof(int));
 	get_clasters(x, core, res, n, m, k);
 	do {
 		calc_centrums(x, res, core, n, m, k);
-		get_clasters(x, core, new_res, n, m, k);
-		flag = equal(new_res, res, n);
-	    memcpy(res, new_res, n * sizeof(int));
-	} while (flag == 1);
+		flag = get_clasters(x, core, res, n, m, k);
+	} while (flag != 0);
 	free(core);
-	free(new_res);
 }

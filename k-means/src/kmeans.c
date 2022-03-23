@@ -3,8 +3,9 @@
 double dist_Ev(const double *x, const double *core, const int m, const int l, const int k) {
 	double dist = 0;
 	int i;
+	const int buf1 = l * m, buf2 = k * m;
 	for (i = 0; i < m; i++)
-		dist += pow(x[l * m + i] - core[k * m + i], 2.0);
+		dist += pow(x[buf1 + i] - core[buf2 + i], 2.0);
 	return sqrt(dist);
 }
 
@@ -56,6 +57,7 @@ static short constr(int *y, int val, int s) {
 }
 
 void start_corenums(int *y, const int k, const int n) {
+	srand(time(NULL));
 	int i;
 	for (i = 0; i < k; i++) {
 		int val;
@@ -65,7 +67,6 @@ void start_corenums(int *y, const int k, const int n) {
 		y[i] = val;
 	}
 }
-
 
 void kmeans(const double *x, int *res, const int n, const int m, const int k) {
 	short flag = 1;

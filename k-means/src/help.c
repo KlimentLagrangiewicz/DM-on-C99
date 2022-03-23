@@ -6,7 +6,8 @@ void fscanf_data(double *x, const int n, const char fn[]) {
 		printf("Error in opening %s file..\n", fn);
 		exit(1);
 	}
-	for (int i = 0; i < n && !feof(file); i++)
+	int i;
+	for (i = 0; i < n && !feof(file); i++)
 		if (fscanf(file, "%lf", &x[i]) == 0) {}
 	fclose(file);
 }
@@ -17,8 +18,9 @@ void fprintf_res(const int *y, const int n, const char fn[]) {
 		printf("Error in opening %s file...\n", fn);
 		exit(1);
 	}
+	int i;
 	fprintf(file, "Результат кластеризации k-means...\n");
-	for (int i = 0; i < n; i++)
+	for (i = 0; i < n; i++)
 		fprintf(file, "Объект: %d; Кластер: %d;\n", i, y[i]);
 	fclose(file);
 }

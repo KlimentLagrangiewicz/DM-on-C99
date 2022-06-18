@@ -3,7 +3,6 @@
 #define KMEANS_H_
 
 #include <math.h>
-#include <string.h>
 #include <stdlib.h>
 #include <time.h>
 #include <float.h>

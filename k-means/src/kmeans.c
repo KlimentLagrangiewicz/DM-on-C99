@@ -13,7 +13,7 @@ int getCluster(const double *x, const double *c, const int l, const int m, const
 	int i, res = 0;
 	double cur, dis = DBL_MAX;
 	for (i = 0; i < k; i++) {
-		cur = dist_Ev(x, c, m, l, i);
+		cur = distEv(x, c, m, l, i);
 		if (cur < dis) {
 			dis = cur;
 			res = i;

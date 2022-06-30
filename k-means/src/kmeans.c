@@ -1,12 +1,14 @@
 #include "kmeans.h"
 
 double distEv(const double *x, const double *core, const int m, const int l, const int k) {
-	double dist = 0;
+	double d, dist = 0;
 	int i;
 	const int buf1 = l * m, buf2 = k * m;
-	for (i = 0; i < m; i++)
-		dist += pow(x[buf1 + i] - core[buf2 + i], 2.0);
-	return sqrt(dist);
+	for (i = 0; i < m; i++) {
+		d = x[buf1 + i] - core[buf2 + i];
+		dist += d * d;
+	}
+	return dist;
 }
 
 int getCluster(const double *x, const double *c, const int l, const int m, const int k) {
@@ -37,12 +39,12 @@ short calcCores(const double *x, int *y, double *c, const int n, const int m, co
 		f = getCluster(x, c, i, m, k);
 		nums[f]++;
 		if (f == y[i]) r++;
+		y[i] = f;
 		buf1 = f * m;
 		buf2 = i * m;
 		for (j = 0; j < m; j++) {
 			nc[buf1 + j] += x[buf2 + j];
 		}
-		y[i] = f;
 	}
 	for (i = 0; i < k * m; i++) {
 		c[i] = nc[i] / nums[i / m];
@@ -61,7 +63,7 @@ static short constr(int *y, int val, int s) {
 	return flag;
 }
 
-void start_corenums(int *y, const int k, const int n) {
+void startCoreNums(int *y, const int k, const int n) {
 	srand(time(NULL));
 	int i;
 	for (i = 0; i < k; i++) {
@@ -77,7 +79,7 @@ void kmeans(const double *x, int *res, const int n, const int m, const int k) {
 	short flag = 1;
 	double *cores = (double*)malloc(k * m * sizeof(double));
 	int *start_num = (int*)malloc(k * sizeof(int));
-	start_corenums(start_num, k, n);
+	startCoreNums(start_num, k, n);
 	int i;
 	for (i = 0; i < k * m; i++) {
 		cores[i] = x[start_num[i / m] * m + i - (i / m) * m];

@@ -3,10 +3,11 @@
 void sigma(const double *x,const int n,const int m,const int l, double *sig, double *_math) {
 	double sigma = 0.0;
 	double av = 0.0;
-	for (int i = 0; i < n; i++)
+	int i;
+	for (i = 0; i < n; i++)
 		av += x[i * m + l];
-	av = av/(double)n;
-	for (int i = 0; i < n; i++)
+	av /= (double)n;
+	for (i = 0; i < n; i++)
 		sigma += pow((x[i * m + l] - av), 2.0);
 	sigma = sqrt(sigma/(double)n);
 	*sig = sigma;
@@ -16,8 +17,9 @@ void sigma(const double *x,const int n,const int m,const int l, double *sig, dou
 void z_normalization(double *x, const int n, const int m) {
 	double *av =(double*)malloc(m * sizeof(double));
 	double *sigm = (double*)malloc(m *sizeof(double));
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < m; j++) {
+	int i, j;
+	for (i = 0; i < n; i++)
+		for (j = 0; j < m; j++) {
 			if (i == 0)	sigma(x, n, m, j, &sigm[j], &av[j]);
 			x[i * m + j] = (x[i * m + j] - av[j])/sigm[j];
 		}
@@ -25,69 +27,89 @@ void z_normalization(double *x, const int n, const int m) {
 	free(sigm);
 }
 
-double getdist_Ev(const double *x1, const double *x2, const int m, const int l, const int k) {
-	double dist = 0.0;
-	for (int i = 0; i < m; i++)
-		dist += pow((x1[l * m + i] - x2[k * m + i]), 2.0);
-	return sqrt(dist);
+double dist_Ev(const double *x1, const double *x2, const int m, const int l, const int k) {
+	int i;
+	double d, dist = 0;
+	for (i = 0; i < m; i++) {
+		d = x1[l + i] - x2[k + i];
+		dist += d * d;
+	}
+	return dist;
 }
 
-void get_neighbors(const double *xtrain, const double *xtest, int *y, const int n, const int m, const int k, const int num) {
-	bool *vect = (bool*)malloc(n * sizeof(bool));
-	memset(vect, 1, n * sizeof(bool));
-	for (int i = 0; i < num; i++) {
-		int kmin = 0;
-		while (!vect[kmin]) {
-			kmin++;
+int getNumOfClass(const int *y, const int n) {
+	int i, j, cur;
+	short *v = (short*)malloc(n * sizeof(short));
+	for (i = 0; i < n; i++) {
+		v[i] = 0;
+	}
+	for (i = 0; i < n; i++) {
+		j = i;
+		while (v[j]) j++;
+		cur = y[j];
+		j++;
+		for (; j < n; j++) {
+			if (y[j] == cur)
+				v[j] = 1;
 		}
-		double dist_min = getdist_Ev(xtrain, xtest, m, kmin, k);
-		for (int j = kmin; j < n; j++) {
-			if (vect[j]) {
-				double cur_dist = getdist_Ev(xtrain, xtest, m, j, k);
-				if (cur_dist < dist_min) {
-					dist_min = cur_dist;
-					kmin = j;
-				}
+	}
+	cur = 0;
+	for (i = 0; i < n; i++) {
+		if (v[i] == 0) cur++;
+	}
+	free(v);
+	return cur;
+}
+
+void kNN(double *xtrain, const int *y, double *xtest, int *res, const int n, const int m, const int n2, const int k) {
+	z_normalization(xtrain, n ,m);
+	z_normalization(xtest, n2, m);
+	int i, j, l, id, noc = getNumOfClass(y, n);
+	double min_d, cur_d;
+	int *r = (int*)malloc(noc * sizeof(int));
+	short *v = (short*)malloc(n * sizeof(short));
+	for (i = 0; i < n2; i++) {
+		for (j = 0; (j < n) && (j < noc); j++) {
+			v[j] = 0;
+			r[j] = 0;
+		}
+		if (noc > n) {
+			for (j = n; j < noc; j++) {
+				r[i] = 0;
 			}
 		}
-		vect[kmin] = false;
-		y[i] = kmin;
-	}
-	free(vect);
-}
-
-void get_classneighbors(const int *y, int *nei,const int num) {
-	for (int i = 0; i < num; i++)
-		nei[i] = y[nei[i]];
-}
-
-int get_num_class(const int *nei, const int num) {
-	int *freg = (int*)calloc(num, sizeof(int));
-	for (int i = 0; i < num; i++)
-		for (int j = i; j < num; j++)
-			if (nei[i] == nei[j])
-				freg[i]++;
-	int max = freg[0];
-	int k_max = 0;
-	for (int i = 0; i < num; i++)
-		if (freg[i] > max) {
-			max = freg[i];
-			k_max = i;
+		if (n > noc) {
+			for (j = noc; j < n; j++) {
+				v[j] = 0;
+			}
 		}
-	free(freg);
-	return nei[k_max];
-}
-
-int get_class_forl(const double *xtrain, const int *y, const double *xtest, const int n, const int m, const int k, const int l) {
-	int *neig = (int*)malloc(k * sizeof(int));
-	get_neighbors(xtrain, xtest, neig, n, m, l, k);
-	get_classneighbors(y, neig, k);
-	int f = get_num_class(neig, k);
-	free(neig);
-	return f;
-}
-
-void kNN(const double *xtrain, const int *y, const double *xtest, int *res, const int n, const int m, const int n2, const int k) {
-	for (int i = 0; i < n2; i++)
-		res[i] = get_class_forl(xtrain, y, xtest, n, m, k, i);
+		for (j = 0; j < k; j++) {
+			l = 0;
+			while (v[l]) l++;
+			min_d = DBL_MAX;
+			id = l;
+			for (; l < n; l++) {
+				if (v[l] == 0) {
+					cur_d = dist_Ev(xtest, xtrain, m, i * m, l * m);
+					if (cur_d < min_d) {
+						min_d = cur_d;
+						id = l;
+					}
+				}
+			}
+			v[id] = 1;
+			r[y[id]]++;
+		}
+		id = 0;
+		l = 0;
+		for (j = 0; j < noc; j++) {
+			if (r[j] > l) {
+				l = r[j];
+				id = j;
+			}
+		}
+		res[i] = id;
+	}
+	free(r);
+	free(v);
 }

@@ -19,8 +19,8 @@ void fprintf_res(const int *y, const int n, const char fn[]) {
 		exit(1);
 	}
 	int i;
-	fprintf(file, "Результат кластеризации k-means...\n");
+	fprintf(file, "Result of k-means clustering...\n");
 	for (i = 0; i < n; i++)
-		fprintf(file, "Объект: %d; Кластер: %d;\n", i, y[i]);
+		fprintf(file, "Object[%d]: %d;\n", i, y[i]);
 	fclose(file);
 }

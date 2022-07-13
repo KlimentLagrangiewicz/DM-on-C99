@@ -3,19 +3,18 @@
 double distEv(const double *x, const double *core, const int m, const int l, const int k) {
 	double d, dist = 0;
 	int i;
-	const int buf1 = l * m, buf2 = k * m;
 	for (i = 0; i < m; i++) {
-		d = x[buf1 + i] - core[buf2 + i];
+		d = x[l + i] - core[k + i];
 		dist += d * d;
 	}
 	return dist;
 }
 
-int getCluster(const double *x, const double *c, const int l, const int m, const int k) {
+int getCluster(const double *x, const double *c, const int m, const int k, const int l) {
 	int i, res = 0;
 	double cur, dis = DBL_MAX;
 	for (i = 0; i < k; i++) {
-		cur = distEv(x, c, m, l, i);
+		cur = distEv(x, c, m, l, i * m);
 		if (cur < dis) {
 			dis = cur;
 			res = i;
@@ -36,12 +35,12 @@ short calcCores(const double *x, int *y, double *c, const int n, const int m, co
 		nc[i] = 0;
 	}
 	for (i = 0; i < n; i++) {
-		f = getCluster(x, c, i, m, k);
+		buf2 = i * m;
+		f = getCluster(x, c, m, k, buf2);
 		nums[f]++;
 		if (f == y[i]) r++;
 		y[i] = f;
 		buf1 = f * m;
-		buf2 = i * m;
 		for (j = 0; j < m; j++) {
 			nc[buf1 + j] += x[buf2 + j];
 		}

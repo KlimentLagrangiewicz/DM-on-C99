@@ -5,7 +5,7 @@
 #include "help.h"
 #include "knn.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char **argv) {
 	if (argc < 8) {
 		printf("Not enough parameters...\n");
 		exit(1);

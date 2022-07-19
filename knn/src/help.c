@@ -1,6 +1,6 @@
 #include "help.h"
 
-void fscanf_train(double *x, int *y, const int n, const int m, const char fn[]) {
+void fscanf_train(double *x, int *y, const int n, const int m, const char *fn) {
 	FILE *file;
 	if ((file = fopen(fn, "r")) == NULL) {
 		printf("Error in opening %s training file\n", fn);
@@ -15,7 +15,7 @@ void fscanf_train(double *x, int *y, const int n, const int m, const char fn[]) 
 	fclose(file);
 }
 
-void fscanf_test(double *x, const int k, const char fn[]) {
+void fscanf_test(double *x, const int k, const char *fn) {
 	FILE *file;
 	if ((file = fopen(fn, "r")) == NULL) {
 		printf("Error in opening %s file\n", fn);
@@ -27,7 +27,7 @@ void fscanf_test(double *x, const int k, const char fn[]) {
 	fclose(file);
 }
 
-void fprintf_res(const int *y, const int n, const char fn[]) {
+void fprintf_res(const int *y, const int n, const char *fn) {
 	FILE *file;
 	if ((file = fopen(fn, "a")) == NULL) {
 		printf("Error in opening %s result file\n", fn);

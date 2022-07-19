@@ -1,30 +1,29 @@
 #include "knn.h"
 
-void sigma(const double *x,const int n,const int m,const int l, double *sig, double *_math) {
-	double sigma = 0.0;
-	double av = 0.0;
-	int i;
-	for (i = 0; i < n; i++)
-		av += x[i * m + l];
-	av /= (double)n;
-	for (i = 0; i < n; i++)
-		sigma += pow((x[i * m + l] - av), 2.0);
-	sigma = sqrt(sigma/(double)n);
-	*sig = sigma;
-	*_math = av;
-}
-
 void z_normalization(double *x, const int n, const int m) {
-	double *av =(double*)malloc(m * sizeof(double));
-	double *sigm = (double*)malloc(m *sizeof(double));
-	int i, j;
-	for (i = 0; i < n; i++)
-		for (j = 0; j < m; j++) {
-			if (i == 0)	sigma(x, n, m, j, &sigm[j], &av[j]);
-			x[i * m + j] = (x[i * m + j] - av[j])/sigm[j];
-		}
-	free(av);
-	free(sigm);
+	double *mean = (double*)malloc(m * sizeof(double));
+	double *disp = (double*)malloc(m * sizeof(double));
+	double d;
+	int i, id;
+	for (i = 0; i < m; i++) {
+		mean[i] = disp[i] = 0;
+	}
+	for (i = 0; i < n * m; i++) {
+		id = i - (i / m) * m;
+		mean[id] += x[i] / (double)n;
+	}
+	for (i = 0; i < n * m; i++) {
+		id = i - (i / m) * m;
+		d = x[i] - mean[id];
+		d *= d / (double)n;
+		disp[id] += d;
+	}
+	for (i = 0; i < n * m; i++) {
+		id = i - (i / m) * m;
+		x[i] = (x[i] - mean[id]) / sqrt(disp[id]);
+	}
+	free(mean);
+	free(disp);
 }
 
 double dist_Ev(const double *x1, const double *x2, const int m, const int l, const int k) {
@@ -44,11 +43,9 @@ int getNumOfClass(const int *y, const int n) {
 		v[i] = 0;
 	}
 	for (i = 0; i < n; i++) {
-		j = i;
-		while (v[j]) j++;
-		cur = y[j];
-		j++;
-		for (; j < n; j++) {
+		while ((v[i]) && (i < n)) i++;
+		cur = y[i];
+		for (j = i + 1; j < n; j++) {
 			if (y[j] == cur)
 				v[j] = 1;
 		}

@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-void sigma(const double *x,const int n,const int m,const int l, double *sig, double *_math);
 void z_normalization(double *x, int n, int m);
 double dist_Ev(const double *x1, const double *x2, const int m, const int l, const int k);
 int getNumOfClass(const int *y, const int n);

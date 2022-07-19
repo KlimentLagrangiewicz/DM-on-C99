@@ -1,29 +1,23 @@
 #include "knn.h"
 
 void z_normalization(double *x, const int n, const int m) {
-	double *mean = (double*)malloc(m * sizeof(double));
-	double *disp = (double*)malloc(m * sizeof(double));
-	double d;
-	int i, id;
-	for (i = 0; i < m; i++) {
-		mean[i] = disp[i] = 0;
+	double mean, d, disp;
+	int i, j;
+	const int b = n * m;
+	for (j = 0; j < m; j++) {
+		mean = disp = 0;
+		for (i = j; i < b; i += m) {
+			mean += x[i] / (double)n;
+		}
+		for (i = j; i < b; i += m) {
+			d = x[i] - mean;
+			disp += d * d / (double)n;
+		}
+		disp = sqrt(disp);
+		for (i = j; i < b; i += m) {
+			x[i] = (x[i] - mean) / disp;
+		}
 	}
-	for (i = 0; i < n * m; i++) {
-		id = i - (i / m) * m;
-		mean[id] += x[i] / (double)n;
-	}
-	for (i = 0; i < n * m; i++) {
-		id = i - (i / m) * m;
-		d = x[i] - mean[id];
-		d *= d / (double)n;
-		disp[id] += d;
-	}
-	for (i = 0; i < n * m; i++) {
-		id = i - (i / m) * m;
-		x[i] = (x[i] - mean[id]) / sqrt(disp[id]);
-	}
-	free(mean);
-	free(disp);
 }
 
 double dist_Ev(const double *x1, const double *x2, const int m, const int l, const int k) {
